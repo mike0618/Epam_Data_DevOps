@@ -27,6 +27,24 @@ curl -O http://www.almhuette-raith.at/apache-log/access.log
 
 Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0) 340874
 ```
+Or like this, with some user-agent validation
+```bash
+[mike@localhost ~]$ awk -f awk_task_1 access.log
+
+Mozilla/4.0 363613
+```
+And awk_task_1 contents:
+```bash
+match($0, /" ".*" ".*"$/) {agent = substr($0, RSTART + 3, RLENGTH)}
+{if (agent ~ /^\w+\/[A-Za-z0-9_.]+[ "]/)
+sub(/".*/, "", agent)
+gsub(/ \([^)]*\)/, "", agent)
+if (count[agent]++ >= max) max = count[agent]}
+END {for (b in count) if(max == count[b]) print b, count[b]}
+
+```
+But do we need the most frequent browser just by file entries or by unique ip addresses?
+
 2. Show number of requests per month for ip 216.244.66.230 (for example: Sep 2016 - 100500 reqs, Oct 2016 - 0 reqs, Nov 2016 - 2 reqs...)
 ```bash
 [mike@localhost ~]$ awk '{if($1 == "216.244.66.230") count[substr($4, 5, 8)]++} END {for (m in count) print m, count[m]}' access.log
@@ -44,10 +62,40 @@ Jan/2021 43
 Sep/2021 7
 Mar/2021 2
 Jun/2021 3
+
+[mike@localhost ~]$ awk -F ' |/' -v ip=216.244.66.230 '{if ($1 == ip) count[$5 " " substr($6, 1, 4)]++} END {for (b in count) print b, count[b]}' access.log
+
+Jul 2021 23
+Feb 2021 14
+Dec 2020 1
+Dec 2021 5
+Oct 2021 23
+Aug 2021 108
+Nov 2021 106
+Apr 2021 34
+Jan 2021 43
+Sep 2021 7
+Mar 2021 2
+Jun 2021 3
+May 2021 27
+
 ```
 3. Show total amount of data which server has provided for each unique ip (i.e. 100500 bytes for 1.2.3.4; 9001 bytes for 5.4.3.2 and so on)
 ```bash
-[mike@localhost ~]$ awk '{count[$1] += $10} END {for (ip in count) print count[ip], "bytes for", ip}' access.log
+[mike@localhost ~]$ awk '{count[$1] += $10} END {for (ip in count) print count[ip], "bytes for", ip}' access.log | sort -rn
+
+36837061299 bytes for 51.210.183.78
+33999609146 bytes for 88.136.178.175
+32275895107 bytes for 90.39.134.147
+19422743215 bytes for 84.50.127.217
+18333376651 bytes for 35.231.163.195
+7513922252 bytes for 83.199.121.123
+7405409791 bytes for 62.39.220.35
+...
+0 bytes for 104.47.9.254
+0 bytes for 104.47.8.254
+0 bytes for 104.47.10.254
+0 bytes for 
 
 ```
 
