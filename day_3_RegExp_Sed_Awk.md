@@ -43,7 +43,7 @@ if (count[agent]++ >= max) max = count[agent]}
 END {for (b in count) if(max == count[b]) print b, count[b]}
 
 ```
-But do we need the most frequent browser just by file entries or by unique ip addresses?
+But do we need the most frequent browser just in file entries or by unique ip addresses?
 
 2. Show number of requests per month for ip 216.244.66.230 (for example: Sep 2016 - 100500 reqs, Oct 2016 - 0 reqs, Nov 2016 - 2 reqs...)
 ```bash
@@ -101,8 +101,15 @@ May 2021 27
 
 ### Sed
 1. Change all browsers to "lynx"
-2. Masquerade all ip addresses. Rewrite file.
+```bash
+[mike@localhost ~]$ sed -i 's/\(.*\)Mozilla/\1lynx/' access.log
 
+```
+2. Masquerade all ip addresses. Rewrite file.
+```bash
+[mike@localhost ~]$ sed -ri 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b/xxx.xxx.xxx.xxx/' access.log
+
+```
 
 ### Extra (*)
 Show list of unique ips, who made more then 50 requests to the same url within 10 minutes (for example too many requests to "/")
