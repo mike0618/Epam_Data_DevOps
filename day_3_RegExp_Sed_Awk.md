@@ -105,10 +105,18 @@ May 2021 27
 [mike@localhost ~]$ sed -i 's/\(.*\)Mozilla/\1lynx/' access.log
 
 ```
+or
+```bash
+[mike@localhost ~]$ sed -i 's/\(".*"\).*\(" ".*"\)$/\1lynx\2/' access.log
+
+```
 2. Masquerade all ip addresses. Rewrite file.
 ```bash
 [mike@localhost ~]$ sed -ri 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b/xxx.xxx.xxx.xxx/' access.log
-
+```
+or
+```bash
+[mike@localhost ~]$ sed -ri 's/^[^ ]+/xxx.xxx.xxx.xxx/' access.log
 ```
 
 ### Extra (*)
