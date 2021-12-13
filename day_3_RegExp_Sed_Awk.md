@@ -121,7 +121,37 @@ or
 
 ### Extra (*)
 Show list of unique ips, who made more then 50 requests to the same url within 10 minutes (for example too many requests to "/")
-
+```bash
+awk -f awk_extra access.log
+```
+awk_extra contents:
+```bash
+BEGIN {FS = "[[ :]"}
+match($0, /"[^"]+"/) {
+  query = substr($0, RSTART + 1, RLENGTH - 2)
+  time = $6 * 3600 + $7 * 60 + $8
+  num = requests[$1][query]["num"]
+  if (time - requests[$1][query][num]["start"] >= 600) {
+    requests[$1][query]["num"]++
+    num++
+    requests[$1][query][num]["start"] = time
+    requests[$1][query][num]["startdate"] = $5 " " $6 ":" $7 ":" $8
+  }
+  requests[$1][query][num]["date"] = $5
+  requests[$1][query][num]["count"]++
+}
+END {
+  for (ip in requests) {
+    for (query in requests[ip]) {
+      for (num = 1; num <= requests[ip][query]["num"]; num++) {
+        if (requests[ip][query][num]["count"] > 50) {
+          printf "%''15s at %s executed %''6s times query %s\n", ip, requests[ip][query][num]["startdate"], requests[ip][query][num]["count"], query
+        }
+      }
+    }
+  }
+}
+```
 
 ---
 
