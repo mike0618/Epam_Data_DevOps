@@ -137,7 +137,6 @@ match($0, /"[^"]+"/) {
     requests[$1][query][num]["start"] = time
     requests[$1][query][num]["startdate"] = $5 " " $6 ":" $7 ":" $8
   }
-  requests[$1][query][num]["date"] = $5
   requests[$1][query][num]["count"]++
 }
 END {
