@@ -32,7 +32,7 @@ PASS_MAX_DAYS	30
 Исследуйте файл /etc/login.defs.
 Исследуйте, как работает команда date и как её использовать совместно с chage.
 ```
-[mike@localhost ~]$ sudo chage -d 0 $(date -d "-31 days" +%F) eve
+[mike@localhost ~]$ sudo chage -d $(date -d "-32 days" +%F) eve
 # Заставит пользователя сменить пароль при первом логине, т.к. устанавливает дату последнего логина на 31 день ранее
 ```
 
