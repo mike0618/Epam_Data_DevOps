@@ -32,8 +32,8 @@ PASS_MAX_DAYS	30
 Исследуйте файл /etc/login.defs.
 Исследуйте, как работает команда date и как её использовать совместно с chage.
 ```
-[mike@localhost ~]$ sudo chage -d $(date -d "-32 days" +%F) eve
-# Заставит пользователя сменить пароль при первом логине, т.к. устанавливает дату последнего логина на 32 дня ранее
+[mike@localhost ~]$ sudo chage -d 0 $(date -d "-32 days" +%F) eve
+# Заставит пользователя сменить пароль при первом логине, т.к. устанавливает дату последнего логина на 32 день ранее
 ```
 
 Task 2: Controlling access to files with Linux file system permissions
@@ -44,10 +44,21 @@ Task 2: Controlling access to files with Linux file system permissions
 Должен быть возможен только пользовательский и групповой доступ, создание и удаление файлов в /home/students. 
 Файлы, созданные в этой директории, должны автоматически присваиваться группе студентов students.
 
+```
+[mike@localhost ~]$ sudo groupadd students
+[mike@localhost ~]$ sudo mkdir /home/students
+[root@localhost mike]# for user in glen antony lesly; do useradd -g students $user; done
+[mike@localhost ~]$ sudo chmod 775 /home/students
+[mike@localhost ~]$ sudo chown :students /home/students
+[mike@localhost ~]$ sudo chmod g+s /home/students
+
+```
 Предварительный шаг:
 Исследуйте, для чего нужны файлы .bashrc и .profile.
-
-
+```
+.bashrc содержит команды для оболочки bash. При запуске bash shell ищет этот файл в домашней директории и выполняет находящиеся в нем команды, если они есть. 
+.profile содержит настройки вида консоли, переменные
+```
 
 Task3: ACL
 
