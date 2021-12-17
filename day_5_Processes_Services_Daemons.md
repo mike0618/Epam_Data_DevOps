@@ -51,11 +51,112 @@ systemd
 1. Write two daemons: one should be a simple daemon and do sleep 10 after a start and 
 then do echo 1 > /tmp/homework, the second one should be oneshot and do echo 2 > 
 /tmp/homework without any sleep
-2. Make the second depended on the first one (should start only after the first)
-3. Write a timer for the second one and configure it to run on 01.01.2019 at 00:00
-4. Start all daemons and timer, check their statuses, timer list and /tmp/homework
-5. Stop all daemons and timer
+```
+firstd
 
+#! /bin/bash
+sleep 10
+echo 1 > /tmp/homework
+
+secondd
+
+#! /bin/bash
+echo 2 > /tmp/homework
+```
+2. Make the second depended on the first one (should start only after the first)
+```
+my1.service
+
+[Unit]
+Description=My First Unit
+
+[Service]
+ExecStart=/home/mike/firstd
+
+[Install]
+WantedBy=multi-user.target
+
+my2.service
+
+[Unit]
+Description=My Second Unit
+After=my1.service
+Requires=my1.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/mike/secondd
+
+[Install]
+WantedBy=multi-user.target
+```
+3. Write a timer for the second one and configure it to run on 01.01.2019 at 00:00
+```
+mytimer.timer
+
+[Unit]
+Description=My Timer
+Requires=my2.service
+
+[Timer]
+Unit=my2.service
+OnCalendar=2019-01-01 00:00:00
+
+[Install]
+WantedBy=timers.target
+```
+4. Start all daemons and timer, check their statuses, timer list and /tmp/homework
+```
+[root@localhost mike]# systemctl start my1.service
+[root@localhost mike]# systemctl start my2.service
+[root@localhost mike]# systemctl start mytimer.timer
+
+[root@localhost mike]# cat /tmp/homework 
+2
+# After 10s:
+[root@localhost mike]# cat /tmp/homework 
+1
+
+[root@localhost mike]# systemctl status my1.service
+● my1.service - My First Unit
+   Loaded: loaded (/etc/systemd/system/my1.service; disabled; vendor preset: disabled)
+   Active: inactive (dead) since Fri 2021-12-17 12:20:09 MSK; 1min 29s ago
+  Process: 4403 ExecStart=/home/mike/firstd (code=exited, status=0/SUCCESS)
+ Main PID: 4403 (code=exited, status=0/SUCCESS)
+
+Dec 17 12:19:59 localhost.localdomain systemd[1]: Started My First Unit.
+
+[root@localhost mike]# systemctl status my2.service
+● my2.service - My Second Unit
+   Loaded: loaded (/etc/systemd/system/my2.service; disabled; vendor preset: disabled)
+   Active: inactive (dead) since Fri 2021-12-17 12:19:59 MSK; 2min 38s ago
+  Process: 4404 ExecStart=/home/mike/secondd (code=exited, status=0/SUCCESS)
+ Main PID: 4404 (code=exited, status=0/SUCCESS)
+
+Dec 17 12:19:59 localhost.localdomain systemd[1]: Starting My Second Unit...
+Dec 17 12:19:59 localhost.localdomain systemd[1]: Started My Second Unit.
+
+[root@localhost mike]# systemctl status mytimer.timer
+● mytimer.timer - My Timer
+   Loaded: loaded (/etc/systemd/system/mytimer.timer; disabled; vendor preset: disabled)
+   Active: active (elapsed) since Fri 2021-12-17 12:14:26 MSK; 6min ago
+
+Dec 17 12:14:26 localhost.localdomain systemd[1]: Started My Timer.
+
+[root@localhost mike]# systemctl list-timers --all
+NEXT                         LEFT     LAST                         PASSED  UNIT                         ACTIVATES
+n/a                          n/a      n/a                          n/a     mytimer.timer                my2.service
+Fri 2021-12-17 23:42:28 MSK  11h left Thu 2021-12-16 23:42:28 MSK  12h ago systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+n/a                          n/a      n/a                          n/a     systemd-readahead-done.timer systemd-readahead-done.service
+
+3 timers listed.
+```
+5. Stop all daemons and timer
+```
+[root@localhost mike]# systemctl stop mytimer.timer
+[root@localhost mike]# systemctl stop my2.service
+[root@localhost mike]# systemctl stop my1.service
+```
 
 cron/anacron
 1. Create an anacron job which executes a script with echo Hello > /opt/hello and runs 
