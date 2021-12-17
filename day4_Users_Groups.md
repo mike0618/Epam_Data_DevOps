@@ -47,8 +47,8 @@ Task 2: Controlling access to files with Linux file system permissions
 ```
 [mike@localhost ~]$ sudo groupadd students
 [mike@localhost ~]$ sudo mkdir /home/students
-[root@localhost mike]# for user in glen antony lesly; do useradd -g students $user; done
-[mike@localhost ~]$ sudo chmod 775 /home/students
+[root@localhost mike]# for user in glen antony lesly; do useradd -G students $user; done
+[mike@localhost ~]$ sudo chmod 770 /home/students
 [mike@localhost ~]$ sudo chown :students /home/students
 [mike@localhost ~]$ sudo chmod g+s /home/students
 
@@ -56,7 +56,7 @@ Task 2: Controlling access to files with Linux file system permissions
 Предварительный шаг:
 Исследуйте, для чего нужны файлы .bashrc и .profile.
 ```
-.bashrc содержит команды для оболочки bash. При запуске bash shell ищет этот файл в домашней директории и выполняет находящиеся в нем команды, если они есть. 
+.bashrc содержит команды для оболочки bash. При запуске bash shell ищет этот файл в домашней директории и выполняет находящиеся в нем команды, например umask 002, если они есть. 
 .profile содержит настройки вида консоли, переменные
 ```
 
@@ -79,3 +79,65 @@ Task3: ACL
 
 Предварительный шаг:
 От суперпользователя создайте папку /share/cases и создайте внутри 2 файла murders.txt и moriarty.txt.
+```
+[mike@localhost ~]$ sudo mkdir -p /share/cases
+[mike@localhost ~]$ sudo touch /share/cases/murders.txt
+[mike@localhost ~]$ sudo touch /share/cases/moriarty.txt
+
+[mike@localhost ~]$ sudo groupadd bakerstreet
+[mike@localhost ~]$ sudo groupadd scotlandyard
+[root@localhost mike]# for user in holmes watson; do useradd -G bakerstreet $user; done
+[root@localhost mike]# for user in lestrade gregson jones; do useradd -G scotlandyard $user; done
+[mike@localhost ~]$ sudo chown -R :bakerstreet /share/cases
+[mike@localhost ~]$ sudo chmod 770 /share/cases
+[mike@localhost ~]$ sudo chmod g+s /share/cases
+[mike@localhost ~]$ sudo chmod 660 /share/cases/*
+[root@localhost ~]# getfacl -R /share/cases > perm_before
+[root@localhost /]# setfacl -m g:scotlandyard:rwx /share/cases
+[root@localhost /]# setfacl -m g:scotlandyard:rw- /share/cases/*
+[root@localhost /]# setfacl -m u:jones:r-x /share/cases
+[root@localhost /]# setfacl -m u:jones:r-- /share/cases/*
+[root@localhost ~]# getfacl -R /share/cases > perm_after
+```
+perm_after contents:
+```
+[root@localhost ~]# cat perm_after 
+# file: share/cases
+# owner: root
+# group: bakerstreet
+# flags: -s-
+user::rwx
+user:jones:r-x
+group::rwx
+group:scotlandyard:rwx
+mask::rwx
+other::---
+
+# file: share/cases/murders.txt
+# owner: root
+# group: bakerstreet
+user::rw-
+user:jones:r--
+group::rw-
+group:scotlandyard:rw-
+mask::rw-
+other::---
+
+# file: share/cases/moriarty.txt
+# owner: root
+# group: bakerstreet
+user::rw-
+user:jones:r--
+group::rw-
+group:scotlandyard:rw-
+mask::rw-
+other::---
+
+# file: share/cases/file
+# owner: holmes
+# group: bakerstreet
+user::rw-
+group::rw-
+other::r--
+
+```
