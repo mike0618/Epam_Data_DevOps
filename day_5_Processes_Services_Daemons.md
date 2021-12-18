@@ -161,9 +161,42 @@ n/a                          n/a      n/a                          n/a     syste
 cron/anacron
 1. Create an anacron job which executes a script with echo Hello > /opt/hello and runs 
 every 2 days
+```
+[mike@localhost ~]$ sudo touch /opt/hello
+[mike@localhost ~]$ sudo chown mike /opt/hello
+
+hello.sh
+
+#! /bin/bash
+echo Hello > /opt/hello
+
+[mike@localhost ~]$ chmod +x hello.sh
+
+[root@localhost ~]# echo "2 0 hello_every2days /home/mike/hello.sh" >> /etc/anacrontab
+```
 2. Create a cron job which executes the same command (will be better to create a script for 
 this) and runs it in 1 minute after system boot.
+```
+[mike@localhost ~]$ cp {,cron_}hello.sh
+[mike@localhost ~]$ sed -i 's/Hello/"Hello from cron"/' cron_hello.sh
+
+[mike@localhost ~]$ crontab -e
+
+SHELL=/bin/bash
+MAILTO=mike
+@reboot sleep 60 && /home/mike/cron_hello.sh
+```
 3. Restart your virtual machine and check previous job proper execution
+```
+[mike@localhost ~]$ sudo reboot
+
+# Right after boot:
+[mike@localhost ~]$ cat /opt/hello
+
+# A minute after boot:
+[mike@localhost ~]$ cat /opt/hello
+Hello from cron
+```
 -----
 
 
