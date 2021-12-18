@@ -203,6 +203,36 @@ Hello from cron
 lsof
 1. Run a sleep command, redirect stdout and stderr into two different files (both of them will 
 be empty).
+```
+[mike@localhost ~]$ sleep 9999 1> out.log 2> err.log &
+[1] 1417
+```
 2. Find with the lsof command which files this process uses, also find from which file it gain 
 stdin.
+```
+[mike@localhost ~]$ lsof -p 1417
+COMMAND  PID USER   FD   TYPE DEVICE  SIZE/OFF     NODE NAME
+sleep   1417 mike  cwd    DIR  253,0      4096  4194383 /home/mike
+sleep   1417 mike  rtd    DIR  253,0       274       64 /
+sleep   1417 mike  txt    REG  253,0     33128 12741138 /usr/bin/sleep
+sleep   1417 mike  mem    REG  253,0 106172832 12799883 /usr/lib/locale/locale-archive
+sleep   1417 mike  mem    REG  253,0   2156272    15641 /usr/lib64/libc-2.17.so
+sleep   1417 mike  mem    REG  253,0    163312    15634 /usr/lib64/ld-2.17.so
+sleep   1417 mike    0u   CHR  136,1       0t0        4 /dev/pts/1
+sleep   1417 mike    1w   REG  253,0         0  4195946 /home/mike/out.log
+sleep   1417 mike    2w   REG  253,0         0  4195974 /home/mike/err.log
+
+[mike@localhost ~]$ lsof -a -p 1417 -d 0
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+sleep   1417 mike    0u   CHR  136,1      0t0    4 /dev/pts/1
+
+```
 3. List all ESTABLISHED TCP connections ONLY with lsof
+```
+[mike@localhost ~]$ sudo lsof -iTCP -sTCP:ESTABLISHED
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+sshd    1284 root    3u  IPv4  18748      0t0  TCP localhost.localdomain:ssh->gateway:47494 (ESTABLISHED)
+sshd    1288 mike    3u  IPv4  18748      0t0  TCP localhost.localdomain:ssh->gateway:47494 (ESTABLISHED)
+sshd    1377 root    3u  IPv4  19453      0t0  TCP localhost.localdomain:ssh->gateway:47988 (ESTABLISHED)
+sshd    1381 mike    3u  IPv4  19453      0t0  TCP localhost.localdomain:ssh->gateway:47988 (ESTABLISHED)
+```
