@@ -9,6 +9,7 @@ webserver - 172.31.45.237 (private IP)
 1.1. SSH to remotehost using username and password provided to you in Slack. Log
 out from remotehost.
 ```
+[mike@localhost ~]$ ssh Mikhail_Zubko@18.221.144.175
 Mikhail_Zubko@18.221.144.175's password: 
 Last login: Mon Dec 20 19:38:17 2021 from 87.248.246.133
 
@@ -120,15 +121,18 @@ port you have specified act like webserver, returning same result as in 1.6.
                                  Dload  Upload   Total   Spent    Left  Speed
 100  1856  100  1856    0     0   7493      0 --:--:-- --:--:-- --:--:--  7544
 ```
-i
+
 1.9 (*) Open webserver webpage in browser of your Host machine of VirtualBox
 (Windows, or Mac, or whatever else you use). You may need to setup port forwarding
 in settings of VirtualBox.
 ```
+# The solution without setting up port forwarding in VBox
+# "GatewayPorts yes" is already present in .ssh/config
+
 # First Connect to virtual machine
 ssh mike@127.0.0.1 -p 2222 -L 8088:localhost:8080
 
-# Then Connect to remotehost
+# Then Connect to remotehost from vm
 [mike@localhost ~]$ ssh remotehost -L 8080:172.31.45.237:80
 
 # Finally in my Host machine browser:
