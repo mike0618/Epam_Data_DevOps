@@ -20,6 +20,9 @@ Last login: Mon Dec 20 19:38:17 2021 from 87.248.246.133
 https://aws.amazon.com/amazon-linux-2/
 No packages needed for security; 4 packages available
 Run "sudo yum update" to apply all updates.
+[Mikhail_Zubko@ip-172-31-33-155 ~]$ exit
+logout
+Connection to 18.221.144.175 closed.
 ```
 
 1.2. Generate new SSH key-pair on your localhost with name "hw-5" (keys should be
@@ -105,6 +108,9 @@ in the same private network). Log out from remotehost.
                                  Dload  Upload   Total   Spent    Left  Speed
 100  1856  100  1856    0     0   368k      0 --:--:-- --:--:-- --:--:--  453k
 
+[Mikhail_Zubko@ip-172-31-33-155 ~]$ exit
+logout
+Connection to 18.221.144.175 closed.
 ```
 
 1.7. Using SSH setup port forwarding, so that you can reach  webserver from your
