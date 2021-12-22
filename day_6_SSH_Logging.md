@@ -154,11 +154,52 @@ Task 2:
 2.1. Imagine your localhost has been relocated to Havana. Change the time zone on
 the localhost to Havana and verify the time zone has been changed properly (may be
 multiple commands).
+```
+[mike@localhost ~]$ sudo timedatectl set-timezone America/Havana
+[mike@localhost ~]$ sudo timedatectl status
+      Local time: Wed 2021-12-22 03:49:08 CST
+  Universal time: Wed 2021-12-22 08:49:08 UTC
+        RTC time: Wed 2021-12-22 08:49:07
+       Time zone: America/Havana (CST, -0500)
+     NTP enabled: yes
+NTP synchronized: yes
+ RTC in local TZ: no
+      DST active: no
+ Last DST change: DST ended at
+                  Sun 2021-11-07 00:59:59 CDT
+                  Sun 2021-11-07 00:00:00 CST
+ Next DST change: DST begins (the clock jumps one hour forward) at
+                  Sat 2022-03-12 23:59:59 CST
+                  Sun 2022-03-13 01:00:00 CDT
+
+```
 
 2.2. Find all systemd journal messages on localhost, that were recorded in the last 50
 minutes and originate from a system service started with user id 81 (single command).
+```
+[mike@localhost ~]$ sudo journalctl -S "$(date -d "-50 minutes" '+%F %T')" --system _UID=81
+-- Logs begin at Tue 2021-12-21 14:28:49 CST, end at Wed 2021-12-22 04:14:11 CST. --
+Dec 22 03:42:35 localhost.localdomain dbus[646]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service'
+Dec 22 03:42:35 localhost.localdomain dbus[646]: [system] Successfully activated service 'org.freedesktop.timedate1'
+Dec 22 03:43:57 localhost.localdomain dbus[646]: [system] Connection has not authenticated soon enough, closing it (auth_timeout=30000ms, elapsed: 30016ms)
+Dec 22 03:44:27 localhost.localdomain dbus[646]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service'
+Dec 22 03:44:27 localhost.localdomain dbus[646]: [system] Successfully activated service 'org.freedesktop.timedate1'
+Dec 22 03:46:04 localhost.localdomain dbus[646]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service'
+Dec 22 03:46:04 localhost.localdomain dbus[646]: [system] Successfully activated service 'org.freedesktop.timedate1'
+Dec 22 03:48:41 localhost.localdomain dbus[646]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service'
+Dec 22 03:48:41 localhost.localdomain dbus[646]: [system] Successfully activated service 'org.freedesktop.timedate1'
+
+```
 
 2.3. Configure  rsyslogd  by adding  a  rule  to  the  newly created  configuration   file
 /etc/rsyslog.d/auth-errors.conf to log all security and authentication messages with the
 priority alert and higher to the  /var/log/auth-errors file. Test the newly added log
 directive with the logger command (multiple commands).
+```
+[root@localhost mike]# echo 'authpriv.alert        /var/log/auth-errors' > /etc/rsyslog.d/auth-errors.conf
+[root@localhost mike]# systemctl restart rsyslog
+[root@localhost mike]# logger -p authpriv.alert "A Very Dangerous Alert"
+[root@localhost mike]# cat /var/log/auth-errors 
+Dec 22 05:06:19 localhost mike: A Very Dangerous Alert
+
+```
