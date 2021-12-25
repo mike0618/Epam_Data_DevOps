@@ -625,7 +625,92 @@ some text here
 ## Work with files
 ​
 1. Find all regular files below 100 bytes inside your home directory.
+```
+[mike@localhost ~]$ find ~ -type f -size -100c
+
+```
 2. Find an inode number and a hard links count for the root directory. The hard link count should be about 17. Why?
+```
+[mike@localhost ~]$ ls -id /
+64 /
+[mike@localhost ~]$ ls -ld /
+dr-xr-xr-x. 18 root root 237 Dec 25 09:49 /
+#  18 because 16 (number of subdirectories) + 2 ('.' dir itself and '..' parent dir entries)
+
+```
 3. Check what inode numbers have "/" and "/boot" directory. Why?
+```
+[mike@localhost ~]$ ls -id /
+64 /
+[mike@localhost ~]$ ls -id /boot/
+64 /boot/
+# /boot is a root of a different filesystem the same type on another partition. As a root it likely has the same inode number.
+```
 4. Check the root directory space usage by du command. Compare it with an information from df. If you find differences, try to find out why it happens.
+```
+[mike@localhost ~]$ sudo du -s / 2> /dev/null 
+2151448 /
+
+[mike@localhost ~]$ sudo df /
+Filesystem              1K-blocks    Used Available Use% Mounted on
+/dev/mapper/centos-root   6486016 2086376   4399640  33% /
+# 'du' shows disk usage summarized for all files, 'df' shows free space for file system including space for deleting files that 'du' does not. That's why the difference here.
+
+```
 5. Check disk space usage of /var/log directory using ncdu
+```
+[mike@localhost ~]$ sudo ncdu /var/log
+ncdu 1.16 ~ Use the arrow keys to navigate, press ? for help                                                                                                                                                       
+--- /var/log ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    3,6 MiB [##############################] /audit
+    1,7 MiB [##############                ] /anaconda
+  616,0 KiB [#####                         ]  messages-20211128
+  324,0 KiB [##                            ]  messages
+  232,0 KiB [#                             ]  messages-20211219
+  176,0 KiB [#                             ]  messages-20211205
+  128,0 KiB [#                             ]  messages-20211215
+   96,0 KiB [                              ]  secure-20211219
+   80,0 KiB [                              ]  wtmp
+   68,0 KiB [                              ]  secure
+   64,0 KiB [                              ]  boot.log-20211128
+   48,0 KiB [                              ]  cron-20211215
+   48,0 KiB [                              ]  cron
+   40,0 KiB [                              ]  cron-20211205
+   36,0 KiB [                              ]  dmesg.old
+   36,0 KiB [                              ]  dmesg
+   32,0 KiB [                              ]  lastlog
+   32,0 KiB [                              ]  boot.log-20211222
+   28,0 KiB [                              ]  secure-20211128
+   28,0 KiB [                              ] /tuned
+   24,0 KiB [                              ]  cron-20211219
+   20,0 KiB [                              ]  secure-20211215
+   16,0 KiB [                              ]  tallylog
+   16,0 KiB [                              ]  boot.log-20211218
+   16,0 KiB [                              ]  btmp-20211201
+   16,0 KiB [                              ]  cron-20211128
+   12,0 KiB [                              ]  btmp
+    8,0 KiB [                              ]  boot.log-20211208
+    8,0 KiB [                              ]  boot.log-20211129
+    8,0 KiB [                              ]  boot.log-20211202
+    8,0 KiB [                              ]  boot.log-20211217
+    8,0 KiB [                              ]  secure-20211205
+    8,0 KiB [                              ]  maillog-20211128
+    4,0 KiB [                              ]  yum.log
+    4,0 KiB [                              ]  firewalld
+    4,0 KiB [                              ]  maillog-20211219
+    4,0 KiB [                              ]  maillog
+    4,0 KiB [                              ]  maillog-20211205
+    4,0 KiB [                              ]  maillog-20211215
+    4,0 KiB [                              ]  grubby_prune_debug
+    4,0 KiB [                              ]  auth-errors
+    0,0   B [                              ] /nginx
+e   0,0   B [                              ] /rhsm
+e   0,0   B [                              ] /httpd
+e   0,0   B [                              ] /chrony
+    0,0   B [                              ]  spooler-20211219
+    0,0   B [                              ]  spooler-20211215
+    0,0   B [                              ]  spooler-20211205
+    0,0   B [                              ]  spooler-20211128
+ Total disk usage:   7,6 MiB  Apparent size:  10,9 MiB  Items: 65  
+
+```
