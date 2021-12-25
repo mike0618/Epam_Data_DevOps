@@ -479,12 +479,6 @@ Complete!
 *Extra task:
     Need to create an rpm package consists of a shell script and a text file. The script should output words count stored in file.
 ```
-[mike@localhost ~]$ echo 'some text here' > text_file
-[mike@localhost ~]$ echo '#!/bin/bash
-cat text_file | wc -w' > shell_script.sh
-[mike@localhost ~]$ chmod +x shell_script.sh
-
-
 [mike@localhost ~]$ sudo yum install rpm-build rpmdevtools
 [mike@localhost ~]$ rpmdev-setuptree
 [mike@localhost ~]$ ll rpmbuild/
@@ -496,7 +490,6 @@ drwxrwx---+ 2 mike mike 6 Dec 25 07:27 SPECS
 drwxrwx---+ 2 mike mike 6 Dec 25 07:27 SRPMS
 
 [mike@localhost ~]$ vi .rpmmacros
-
 %packager MikeZ
 
 %_topdir %(echo $HOME)/rpmbuild
@@ -518,10 +511,113 @@ drwxrwx---+ 2 mike mike 6 Dec 25 07:27 SRPMS
     case "${QA_CHECK_RPATHS:-}" in [1yY]*) /usr/lib/rpm/check-rpaths ;; esac \
     /usr/lib/rpm/check-buildroot
 
-[mike@localhost ~]$ echo 'some text here' > rpmbuild/SOURCES/text_file
-[mike@localhost ~]$ echo '#!/bin/bash
-> cat text_file | wc -w' > rpmbuild/SOURCES/shell_script.sh
 
+[mike@localhost ~]$ echo 'some text here' > rpmbuild/SOURCES/my1package-1/text_file
+[mike@localhost ~]$ echo '#!/bin/bash
+> cat text_file | wc -w' > rpmbuild/SOURCES/my1package-1/shell_script.sh
+
+
+[mike@localhost ~]$ vi rpmbuild/SPECS/my1package.spec
+Name:           my1package
+Version:        1
+Release:        0
+Summary:        shell_script.sh counts words in text_file
+
+Group:          EPAM_Training
+BuildArch:      noarch
+License:        GPL
+URL:            https://github.com/mike0618/Epam_Data_DevOps/blob/day7/day_7_Repositories_Packages_Files.md
+Source0:        my1package.tar.gz
+
+%description
+This is My Very First Package
+
+%prep
+%setup -q
+%build
+%install
+install -m 0755 -d $RPM_BUILD_ROOT/etc/my1package
+install -m 0600 text_file $RPM_BUILD_ROOT/etc/my1package/text_file
+install -m 0755 shell_script.sh $RPM_BUILD_ROOT/etc/my1package/shell_script.sh
+
+%files
+/etc/my1package
+/etc/my1package/text_file
+/etc/my1package/shell_script.sh
+
+%changelog
+* Sat Dec 25 2021 Mike Zubko  1.0.0
+  - Initial rpm release
+
+
+[mike@localhost ~]$ cd ~/rpmbuild
+[mike@localhost rpmbuild]$ rpmbuild -ba SPECS/my1package.spec
+Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.aiFODg
++ umask 022
++ cd /home/mike/rpmbuild/BUILD
++ cd /home/mike/rpmbuild/BUILD
++ rm -rf my1package-1
++ /usr/bin/tar -xf -
++ /usr/bin/gzip -dc /home/mike/rpmbuild/SOURCES/my1package.tar.gz
++ STATUS=0
++ '[' 0 -ne 0 ']'
++ cd my1package-1
++ /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
++ exit 0
+Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.82gWAK
++ umask 022
++ cd /home/mike/rpmbuild/BUILD
++ cd my1package-1
++ exit 0
+Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.UHzxze
++ umask 022
++ cd /home/mike/rpmbuild/BUILD
++ '[' /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64 '!=' / ']'
++ rm -rf /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64
+++ dirname /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64
++ mkdir -p /home/mike/rpmbuild/BUILDROOT
++ mkdir /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64
++ cd my1package-1
++ install -m 0755 -d /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64/etc/my1package
++ install -m 0600 text_file /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64/etc/my1package/text_file
++ install -m 0755 shell_script.sh /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64/etc/my1package/shell_script.sh
++ /usr/lib/rpm/find-debuginfo.sh --strict-build-id -m --run-dwz --dwz-low-mem-die-limit 10000000 --dwz-max-die-limit 110000000 /home/mike/rpmbuild/BUILD/my1package-1
+/usr/lib/rpm/sepdebugcrcfix: Updated 0 CRC32s, 0 CRC32s did match.
++ '[' noarch = noarch ']'
++ case "${QA_CHECK_RPATHS:-}" in
++ /usr/lib/rpm/check-buildroot
++ /usr/lib/rpm/redhat/brp-compress
++ /usr/lib/rpm/redhat/brp-strip-static-archive /usr/bin/strip
++ /usr/lib/rpm/brp-python-bytecompile /usr/bin/python 1
++ /usr/lib/rpm/redhat/brp-python-hardlink
++ /usr/lib/rpm/redhat/brp-java-repack-jars
+Processing files: my1package-1-0.noarch
+warning: File listed twice: /etc/my1package/shell_script.sh
+warning: File listed twice: /etc/my1package/text_file
+Provides: my1package = 1-0
+Requires(rpmlib): rpmlib(CompressedFileNames) <= 3.0.4-1 rpmlib(FileDigests) <= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+Requires: /bin/bash
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64
+Wrote: /home/mike/rpmbuild/SRPMS/my1package-1-0.src.rpm
+Wrote: /home/mike/rpmbuild/RPMS/noarch/my1package-1-0.noarch.rpm
+Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.ep1B5I
++ umask 022
++ cd /home/mike/rpmbuild/BUILD
++ cd my1package-1
++ /usr/bin/rm -rf /home/mike/rpmbuild/BUILDROOT/my1package-1-0.x86_64
++ exit 0
+
+
+[mike@localhost rpmbuild]$ sudo rpm -ivh RPMS/noarch/my1package-1-0.noarch.rpm
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:my1package-1-0                   ################################# [100%]
+
+
+[mike@localhost rpmbuild]$ sudo cat /etc/my1package/text_file 
+some text here
+[mike@localhost rpmbuild]$ sudo bash /etc/my1package/shell_script.sh
+3
 
 
 ```
