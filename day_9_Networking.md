@@ -1,6 +1,6 @@
 1. add secondary ip address to you second network interface enp0s8. Each point must be presented with commands and showing that new address was applied to the interface. To repeat adding address for points 2 and 3 address must be deleted (please add deleting address to you homework log) Methods:
    1. using ip utility (stateless)
-   ```
+```
    [mike@localhost ~]$ ip -4 a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     inet 127.0.0.1/8 scope host lo
@@ -53,9 +53,9 @@ rtt min/avg/max/mdev = 0.110/0.132/0.183/0.028 ms
        valid_lft forever preferred_lft forever
 
 
-   ```
+```
    2. using centos network configuration file (statefull)
-   ```
+```
 # set up config file (I don't know why it's not "ifcfg-enp0s8", but... It works!):
 [mike@10 ~]$ sudo vi /etc/sysconfig/network-scripts/ifcfg-eth0
 DEVICE=enp0s8
@@ -95,9 +95,9 @@ Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkMa
        valid_lft forever preferred_lft forever
 
 
-   ```
+```
    3. using nmcli utility (statefull)
-   ```
+```
 [mike@10 ~]$ nmcli connection show
 NAME         UUID                                  TYPE      DEVICE 
 enp0s3       9975c189-27e7-4e33-b20f-7460491ccc82  ethernet  enp0s3 
@@ -119,7 +119,7 @@ Device 'enp0s8' successfully activated with '5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e0
 
 
 
-   ```
+```
 2. You should have a possibility to use ssh client to connect to your node using new address from previous step. Run tcpdump in separate tmux session or separate connection before starting ssh client and capture packets that are related to this ssh connection. Find packets that are related to TCP session establish.
 ```
 # Set up VBox - MyCentOs7 - Settings - Network - Port Forwarding - {Protocol: TCP, Host IP: 127.0.0.1, Host Port: 2222, Guest IP: 192.168.2.99, Guest Port: 22}
