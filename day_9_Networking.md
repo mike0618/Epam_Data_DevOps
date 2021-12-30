@@ -153,7 +153,7 @@ sudo tcpdump -i lo port 2222 > tcpdump.log
 ```
 4. run tcpdump and request any http site in separate session. Find HTTP request and answer packets with ASCII data in it.  Tcpdump command must be as strict as possible to capture only needed packages for this http request.
 ```
-[mike@10 ~]$ sudo tcpdump -A tcp port http
+[mike@10 ~]$ sudo tcpdump -A host 10.0.2.15 and testingmcafeesites.com
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on enp0s3, link-type EN10MB (Ethernet), capture size 262144 bytes
 
