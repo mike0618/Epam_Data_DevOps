@@ -61,8 +61,39 @@ vm.dirty_ratio = 29
 ​
 * extra
 1. Inspect initrd file contents. Find all files that are related to XFS filesystem and give a short description for every file.
+```
+[root@localhost initramfs]# mkdir /tmp/initramfs
+[root@localhost initramfs]# cp /boot/initramfs-3.10.0-1160.el7.x86_64.img /tmp/initramfs/
+[root@localhost initramfs]# cd /tmp/initramfs
+[root@localhost initramfs]# /usr/lib/dracut/skipcpio initramfs-3.10.0-1160.el7.x86_64.img | zcat | cpio -ivd
+[root@localhost initramfs]# find -name "*xfs*"
+./usr/sbin/xfs_db													# debug an XFS filesystem, is used to examine an XFS filesystem
+./usr/sbin/xfs_repair												# repair an XFS filesystem, repairs corrupt or damaged XFS filesystems
+./usr/sbin/xfs_metadump												# is a debugging tool that copies the metadata from anXFS filesystem to a file
+./usr/sbin/fsck.xfs													# is called by the generic Linux fsck program at startup to check and repair an XFS filesystem
+./usr/lib/modules/3.10.0-1160.el7.x86_64/kernel/fs/xfs				# xfs kernel module
+./usr/lib/modules/3.10.0-1160.el7.x86_64/kernel/fs/xfs/xfs.ko.xz	# xfs dev driver ?
+
+```
 2. Study dracut utility that is used for rebuilding initrd image. Give an example for adding driver/kernel module for your initrd and recreating it.
+```
+[root@localhost boot]# dracut --add-drivers ath3k /root/new.img
+[root@localhost boot]# lsinitrd /root/new.img | grep -i ath3k
+Arguments: --add-drivers 'ath3k'
+-rw-r--r--   1 root     root       246804 Sep 30  2020 usr/lib/firmware/ath3k-1.fw
+-rw-r--r--   1 root     root         5240 Oct 19  2020 usr/lib/modules/3.10.0-1160.el7.x86_64/kernel/drivers/bluetooth/ath3k.ko.xz
+[root@localhost boot]# dracut -f /root/new.img
+[root@localhost boot]# ls -la /root/new.img 
+-rw------- 1 root root 20998856 Jan 16 18:00 /root/new.img
+
+
+```
 3. Explain the difference between ordinary and rescue initrd images.
+```
+rescue img is used for rescue mode (2nd entry in grub) if ordinary doesn't work
+it's a full one (has bigger size) it can be uset to boot system in case of hardware changes prevents ordinary from being able to boot
+
+```
 ​
 ## Selinux
 ​
@@ -91,6 +122,8 @@ success
 success
 [root@localhost mike]# firewall-cmd --zone=internal --add-interface=enp0s8 --permanent
 The interface is under control of NetworkManager, setting zone to 'internal'.
+success
+[root@localhost miki]# firewall-cmd --add-rich-rule='rule family=ipv4 source address=192.168.56.0/24 port port=22 protocol=tcp  accept'
 success
 [root@localhost mike]# firewall-cmd --reload
 success
