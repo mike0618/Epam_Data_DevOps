@@ -1,0 +1,30 @@
+FROM centos:centos7
+RUN yum -y install java-1.8.0-openjdk && \
+curl -O https://archive.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz && \
+tar xvzf hadoop-3.1.2.tar.gz -C /opt/ && rm hadoop-3.1.2.tar.gz && \
+mkdir /usr/local/hadoop/ && ln -s /opt/hadoop-3.1.2/ /usr/local/hadoop/current && \
+for user in exam hadoop hdfs yarn; do useradd $user; done && \
+for user in hadoop yarn hdfs; do usermod -aG hadoop $user; done && \
+mkdir -p /opt/mount{1..2}/namenode-dir && chown hdfs:hadoop /opt/mount{1..2}/namenode-dir && \
+curl -O https://gist.githubusercontent.com/rdaadr/2f42f248f02aeda18105805493bb0e9b/raw/6303e424373b3459bcf3720b253c01373666fe7c/hadoop-env.sh && \
+curl -O https://gist.githubusercontent.com/rdaadr/64b9abd1700e15f04147ea48bc72b3c7/raw/2d416bf137cba81b107508153621ee548e2c877d/core-site.xml && \
+curl -O https://gist.githubusercontent.com/rdaadr/2bedf24fd2721bad276e416b57d63e38/raw/640ee95adafa31a70869b54767104b826964af48/hdfs-site.xml && \
+curl -O https://gist.githubusercontent.com/Stupnikov-NA/ba87c0072cd51aa85c9ee6334cc99158/raw/bda0f760878d97213196d634be9b53a089e796ea/yarn-site.xml && \
+sed -i 's|"%PATH_TO_OPENJDK8_INSTALLATION%"|/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/jre|' hadoop-env.sh && \
+sed -i 's|"%PATH_TO_HADOOP_INSTALLATION"|/usr/local/hadoop/current|' hadoop-env.sh && \
+sed -i 's|"%HADOOP_HEAP_SIZE%"|512m|' hadoop-env.sh && \
+sed -i 's|%HDFS_NAMENODE_HOSTNAME%|0.0.0.0|' core-site.xml && \
+sed -i 's|%YARN_RESOURCE_MANAGER_HOSTNAME%|0.0.0.0|' yarn-site.xml && \
+sed -i 's|%NAMENODE_DIRS%|/opt/mount1/namenode-dir,/opt/mount2/namenode-dir|' hdfs-site.xml && \
+mv {,/usr/local/hadoop/current/etc/hadoop/}hadoop-env.sh && \
+mv {,/usr/local/hadoop/current/etc/hadoop/}core-site.xml && \
+mv {,/usr/local/hadoop/current/etc/hadoop/}hdfs-site.xml && \
+mv {,/usr/local/hadoop/current/etc/hadoop/}yarn-site.xml && \
+echo "export HADOOP_HOME=/usr/local/hadoop/current" >> /etc/profile && source /etc/profile && \
+mkdir /usr/local/hadoop/current/logs && chown hdfs:hadoop /usr/local/hadoop/current/logs && chmod 775 /usr/local/hadoop/current/logs && \
+echo -e '#!/bin/bash\nsu hdfs -s /bin/bash -c "/usr/local/hadoop/current/bin/hdfs --daemon start namenode" &' > /entry.sh && \
+echo -e 'su yarn -s /bin/bash -c "/usr/local/hadoop/current/bin/yarn --daemon start resourcemanager" &\nbash' >> /entry.sh && \
+su hdfs -s /bin/bash -c "/usr/local/hadoop/current/bin/hdfs namenode -format cluster1" && \
+chmod 775 /entry.sh
+EXPOSE 9870 8088 8020 8031 8042 9864 9866
+ENTRYPOINT ["/entry.sh"]
